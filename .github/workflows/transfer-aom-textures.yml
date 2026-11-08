@@ -1,0 +1,32 @@
+name: Transfer AOM texture archive
+
+on:
+  push:
+    paths:
+      - ".github/workflows/transfer-aom-textures.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download texture archive from release
+        run: |
+          curl --fail --location --retry 3 \
+            "https://github.com/riddimmdfk/aom-hl-dll-transfer/releases/download/aom-textures-v1/AOM_Textures_Source.zip" \
+            --output AOM_Textures_Source.zip
+
+      - name: Verify SHA-256
+        run: |
+          echo "f47fbe3f48d314c71f63b210a4d29e71cec0a49fa2b3355db8f91c075470e385  AOM_Textures_Source.zip" | sha256sum --check --strict
+
+      - name: Upload as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AOM_Textures_Source
+          path: AOM_Textures_Source.zip
+          if-no-files-found: error
+          retention-days: 7
